@@ -10,7 +10,8 @@ plt.rcParams["figure.figsize"] = (20, 8)
 
 # ID predmeta
 predmeti = {"IF1": 40, "IM1": 12, "LAG": 44, "OE": 2093, "OR": 1, "IM2": 13, "MLTI": 2096, "OS": 2098, "TP": 2,
-            "VIS": 2097, "ASP": 42, "DM": 4, "LD": 43, "OBP": 105, "RPR": 9, "SP": 10}
+            "VIS": 2097, "ASP": 42, "DM": 4, "LD": 43, "OBP": 105, "RPR": 9, "SP": 10, "AFJ": 41, "OOAD": 104,
+            "ORM": 6, "RA": 22, "RMA": 2102, "US": 2103}
 godina = {"2020/21": 16, "2019/20": 15, "2018/19": 14, "2017/18": 13, "2016/17": 12}
 
 global app
