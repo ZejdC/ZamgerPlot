@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import sys
 
 plt.style.use('seaborn-white')
-plt.rcParams["figure.figsize"] = (20,8)
+plt.rcParams["figure.figsize"] = (20, 8)
 
 # ID predmeta
 predmeti = {"IF1": 40, "IM1": 12, "LAG": 44, "OE": 2093, "OR": 1, "IM2": 13, "MLTI": 2096, "OS": 2098, "TP": 2,
@@ -16,20 +16,21 @@ godina = {"2020/21": 16, "2019/20": 15, "2018/19": 14, "2017/18": 13, "2016/17":
 global app
 global comboPredmet
 global comboGodina
+global total
 
 
-def dajocjenu(str):
+def dajocjenu(ocjena):
     """Vraca 5 ako je str /, inace vraca str"""
-    if str == '/':
+    if ocjena == '/':
         return '5'
-    return str
+    return ocjena
 
 
-def dajbrojbodova(str):
+def dajbrojbodova(brojbodova):
     """Vraca -1 ako je str /, inace vraca str"""
-    if str == '/':
+    if brojbodova == '/':
         return '-1'
-    return str
+    return brojbodova
 
 
 def dajlinkcvs(index, ag):
@@ -38,16 +39,22 @@ def dajlinkcvs(index, ag):
            "=%d&ag=%d&sm_arhiva=1" % (index, ag)
 
 
+def dajsljedecudeseticu(broj):
+    broj = round(broj)
+    while broj % 10 != 0:
+        broj = broj + 1
+    return broj
+
+
 def dajispite(url):
     i = 0
-
     ukupno = 0
     global total
     ispiti = {}
     poc_indeks = 4
     preskoci = False
     data = urllib.request.urlopen(url)
-    for line in data:  # files are iterable
+    for line in data:
         if preskoci:
             preskoci = False
             continue
@@ -70,7 +77,7 @@ def dajispite(url):
             ukupno = ukupno + 1
             pom = poc_indeks
             for key in ispiti:
-                bodovi = float(dajbrojbodova(value[pom]).replace(',','.'))
+                bodovi = float(dajbrojbodova(value[pom]).replace(',', '.'))
                 if bodovi > -1:
                     ispiti[key].append(bodovi)
                 pom = pom + 1
@@ -89,13 +96,26 @@ def dajpodatke():
     for key in lista:
         plt.ylabel("Bodovi")
         plt.title(key)
-        plt.xlim([-1, len(lista[key])+5])
+        plt.xlim([-1, len(lista[key]) + 5])
         plt.ylim([-3, 100])
         plt.xticks([-1, len(lista[key])], "")
-        plt.yticks(range(0,101,5))
-        plt.scatter(range(0, len(lista[key])), lista[key], color='Blue')
+        plt.yticks(range(0, 101, 5))
+
         if len(lista[key]) != 0:
-            plt.text(-1,-8, "Broj studenata koji su pristupili ispitu: %d" % (len(lista[key])))
+            maxbodovi = dajsljedecudeseticu(max(lista[key]))
+            boje = []
+            polozili = 0
+            for x in lista[key]:
+                if x >= maxbodovi / 2.:
+                    boje.append('b')
+                    polozili = polozili+1
+                else:
+                    boje.append('r')
+            plt.scatter(range(0, len(lista[key])), lista[key], color=boje)
+            mng = plt.get_current_fig_manager()
+            mng.window.state('zoomed')
+            plt.text(-1, -8, "Broj studenata koji su pristupili ispitu: %d\nBroj studenata koji su položili ispit: %d" %
+                     (len(lista[key]), polozili))
             plt.show()
     gui()
 
@@ -110,17 +130,18 @@ def gui():
     global comboGodina
 
     app = tk.Tk()
+    app.title("Izaberi predmet i akademsku godinu")
     app.geometry('300x150')
 
     labelTop = tk.Label(app,
-                    text="Izaberi predmet")
+                        text="Izaberi predmet")
     labelTop.pack()
     comboPredmet = ttk.Combobox(app,
-                            values=list(predmeti.keys()),state='readonly')
+                                values=list(predmeti.keys()), state='readonly')
     comboPredmet.pack()
     labelBottom = tk.Label(app, text="Izaberi akademsku godinu")
     labelBottom.pack()
-    comboGodina = ttk.Combobox(app, values=["2016/17", "2017/18", "2018/19", "2019/20", "2020/21"],state='readonly')
+    comboGodina = ttk.Combobox(app, values=["2016/17", "2017/18", "2018/19", "2019/20", "2020/21"], state='readonly')
     comboGodina.current(0)
     comboPredmet.current(0)
     comboGodina.pack()
@@ -130,7 +151,6 @@ def gui():
     btnCancel.pack()
     app.mainloop()
 
+
 # ---MAIN---
 gui()
-
-# dajispite(dajlinkcvs(predmeti["VIS"],14))
